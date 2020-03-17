@@ -1,6 +1,6 @@
 FROM centos:7 as builder
 
-ARG CCACHE_VERSION=3.7.7
+ARG CCACHE_VERSION=3.7.8
 
 # install build dependencies
 RUN yum -y install gcc make
