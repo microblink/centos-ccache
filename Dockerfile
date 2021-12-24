@@ -1,9 +1,23 @@
-FROM centos:7 as builder
+FROM amazonlinux:2 as builder
 
-ARG CCACHE_VERSION=3.7.12
+ARG CCACHE_VERSION=4.5.1
+ARG CMAKE_VERSION=3.22.1
 
 # install build dependencies
-RUN yum -y install gcc make
+RUN yum -y install gcc-c++ make tar gzip
+
+ARG BUILDPLATFORM
+RUN echo "BUILDPLATFORM is ${BUILDPLATFORM}"
+
+# download and install CMake
+RUN cd /home && \
+    if [ "$BUILDPLATFORM" == "linux/arm64" ]; then arch=aarch64; else arch=x86_64; fi && \
+    curl -o cmake.tar.gz -L https://github.com/Kitware/CMake/releases/download/v${CMAKE_VERSION}/cmake-${CMAKE_VERSION}-linux-${arch}.tar.gz && \
+    tar xf cmake.tar.gz && \
+    mv cmake-${CMAKE_VERSION}-linux-${arch} cmake
+
+# setup environment variables
+ENV PATH="/home/cmake/bin:${PATH}"
 
 # build ccache from source
 RUN pushd /home && \
@@ -11,9 +25,9 @@ RUN pushd /home && \
     tar xf ccache.tar.gz    && \
     mkdir build && \
     pushd build && \
-    ../ccache-${CCACHE_VERSION}/configure --prefix=/usr/local && \
+    cmake -DCMAKE_BUILD_TYPE=Release -DZSTD_FROM_INTERNET=ON -DREDIS_STORAGE_BACKEND=OFF ../ccache-${CCACHE_VERSION} && \
     make -j $(nproc) && \
     make install
 
-FROM centos:7
+FROM amazonlinux:2
 COPY --from=builder /usr/local /usr/local/
