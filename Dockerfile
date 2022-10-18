@@ -1,7 +1,7 @@
 FROM amazonlinux:2 as builder
 
-ARG CCACHE_VERSION=4.5.1
-ARG CMAKE_VERSION=3.22.1
+ARG CCACHE_VERSION=4.7
+ARG CMAKE_VERSION=3.24.2
 
 # install build dependencies
 RUN yum -y install gcc-c++ make tar gzip
