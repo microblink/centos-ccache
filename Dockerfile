@@ -1,7 +1,7 @@
-FROM amazonlinux:2 as builder
+FROM amazonlinux:2022 as builder
 
-ARG CCACHE_VERSION=4.7
-ARG CMAKE_VERSION=3.24.2
+ARG CCACHE_VERSION=4.7.4
+ARG CMAKE_VERSION=3.25.1
 
 # install build dependencies
 RUN yum -y install gcc-c++ make tar gzip
@@ -29,5 +29,5 @@ RUN pushd /home && \
     make -j $(nproc) && \
     make install
 
-FROM amazonlinux:2
+FROM amazonlinux:2022
 COPY --from=builder /usr/local /usr/local/
